@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@banneratriads/button": "^0.0.1",
+    "@banneratriads/theme": "^0.0.1"
+  }
+}

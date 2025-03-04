@@ -1,0 +1,44 @@
+@namespace BlazorApp.Components
+@inject IJSRuntime JS
+
+<atria-button 
+    @ref="ButtonElement" 
+    button-text="@ButtonText" 
+    button-type="@ButtonType">
+</atria-button>
+
+@code {
+    private ElementReference ButtonElement;
+    private DotNetObjectReference<AtriaButton>? dotNetRef;
+
+    [Parameter] public string ButtonText { get; set; } = "Click Me";
+    [Parameter] public string ButtonType { get; set; } = "bh-primary";
+    [Parameter] public string EventName { get; set; } = "btnClick";
+    [Parameter] public EventCallback<string> OnCustomEvent { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //Ensure dotNetRef is stored properly and not lost
+            dotNetRef?.Dispose(); // Dispose previous reference if needed
+            dotNetRef = DotNetObjectReference.Create(this);
+
+            //Ensure JavaScript receives the correct reference
+            await JS.InvokeVoidAsync("stencilInterop.bindStencilEvent", ButtonElement, EventName, dotNetRef, "HandleCustomEvent");
+        }
+    }
+
+    [JSInvokable]
+    public async Task HandleCustomEvent(string eventData)
+    {
+        await OnCustomEvent.InvokeAsync(eventData);
+    }
+
+    public void Dispose()
+    {
+        //Properly dispose of the reference when component is destroyed
+        dotNetRef?.Dispose();
+        dotNetRef = null;
+    }
+}

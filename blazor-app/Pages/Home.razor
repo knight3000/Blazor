@@ -1,0 +1,46 @@
+﻿@page "/"
+@inject IJSRuntime JS
+
+<PageTitle>Home</PageTitle>
+
+<atria-button 
+    id="buttonComponent"
+    button-text="Click Me"
+    button-type="bh-primary">
+</atria-button>
+
+<script>
+    window.attachStencilEvent = function () {
+        let buttonComponent = document.getElementById("buttonComponent"); // ✅ Select Web Component
+        if (buttonComponent) {
+            buttonComponent.addEventListener("btnClick", function (event) {
+                let eventData = typeof event.detail === "string" ? event.detail : JSON.stringify(event.detail);
+                DotNet.invokeMethodAsync("blazor-app", "HandleStencilEvent", eventData);
+            });
+        } else {
+            console.error("buttonComponent not found!");
+        }
+    };
+</script>
+
+@code {
+    private bool _isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isInitialized)
+        {
+            _isInitialized = true;
+
+            //Call JavaScript AFTER the component has rendered
+            await JS.InvokeVoidAsync("attachStencilEvent");
+        }
+    }
+
+    [JSInvokable]
+    public static Task HandleStencilEvent(string eventData)
+    {
+        Console.WriteLine($"Stencil button clicked! Data: {eventData}");
+        return Task.CompletedTask;
+    }
+}

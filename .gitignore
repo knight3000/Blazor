@@ -1,0 +1,15 @@
+# Ignore build outputs
+bin/
+obj/
+# Ignore user-specific files
+.vscode/
+.idea/
+*.user
+*.suo
+*.bak
+*.swp
+*.cache
+# Ignore local environment settings
+Properties/launchSettings.json
+# Ignore Blazor WebAssembly artifacts
+wwwroot/dist/
